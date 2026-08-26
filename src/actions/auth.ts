@@ -23,6 +23,8 @@ export async function login(formData: FormData) {
   }
   
   const { email, password } = validated.data;
+  
+  try {
   const headersList = await headers();
   const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'Unknown IP';
   const userAgent = headersList.get('user-agent') || 'Unknown Browser';
@@ -123,11 +125,16 @@ export async function login(formData: FormData) {
 
   await setSessionCookie(session.id, expiresAt);
 
-  return { success: true };
+    return { success: true };
+  } catch (error) {
+    console.error('[AUTH_ERROR] Login Server Action Failed:', error);
+    return { error: 'System connection failed. Please contact IT support or try again later.' };
+  }
 }
 
 export async function logout() {
-  const sessionId = await getSessionId();
+  try {
+    const sessionId = await getSessionId();
   if (sessionId) {
     const headersList = await headers();
     const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'Unknown IP';
@@ -146,7 +153,11 @@ export async function logout() {
     await prisma.session.delete({ where: { id: sessionId } }).catch(() => {});
   }
   
-  await deleteSessionCookie();
+    await deleteSessionCookie();
+  } catch (error) {
+    console.error('[AUTH_ERROR] Logout Action Failed:', error);
+    // Proceed to redirect anyway to clear UI state
+  }
   redirect('/login');
 }
 
@@ -160,6 +171,8 @@ export async function verifySudo(formData: FormData) {
   });
 
   if (!session) return { error: 'Invalid session' };
+
+  try {
 
   const rawPassword = formData.get('password');
   const rawPin = formData.get('pin');
@@ -193,5 +206,9 @@ export async function verifySudo(formData: FormData) {
     }
   });
 
-  return { success: true };
+    return { success: true };
+  } catch (error) {
+    console.error('[AUTH_ERROR] Sudo Verification Failed:', error);
+    return { error: 'Security verification failed due to a system error. Please try again.' };
+  }
 }
