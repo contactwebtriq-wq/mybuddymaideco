@@ -209,8 +209,8 @@ export default function ClientsClientPage({ initialClients }: { initialClients: 
         )}
       </div>
 
-      {/* Data Grid - High Density Enterprise Table */}
-      <div className="bg-white rounded-lg border border-zinc-200 shadow-sm overflow-hidden">
+      {/* Data Grid - Desktop */}
+      <div className="hidden md:block bg-white rounded-lg border border-zinc-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="bg-zinc-50 border-b border-zinc-200">
@@ -298,7 +298,69 @@ export default function ClientsClientPage({ initialClients }: { initialClients: 
         </div>
       </div>
 
-      {/* Edit Lead Modal */}
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {filteredClients.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-xl border border-zinc-200 shadow-sm">
+            <Briefcase className="w-8 h-8 text-zinc-300 mx-auto mb-3" />
+            <p className="font-medium text-zinc-500">No leads found.</p>
+          </div>
+        ) : (
+          filteredClients.map((client) => (
+            <div key={client.id} className={`bg-white border rounded-xl p-4 shadow-sm relative transition-colors ${selectedIds.has(client.id) ? 'border-blue-500 bg-blue-50/50' : 'border-zinc-200'}`}>
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-start gap-3">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedIds.has(client.id)}
+                    onChange={() => toggleSelection(client.id)}
+                    className="mt-1 w-4 h-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-600" 
+                  />
+                  <div>
+                    <h3 className="font-bold text-zinc-900 text-base">{client.fullName}</h3>
+                    <div className="flex flex-col gap-1 mt-1 text-xs text-zinc-500 font-medium">
+                      <span className="flex items-center gap-1"><Phone className="w-3 h-3"/> {client.phone}</span>
+                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3"/> {client.city}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide block mb-1">Date</span>
+                  <span className="text-xs font-bold text-zinc-700 bg-zinc-100 px-2 py-1 rounded">{formatDate(client.createdAt).split(',')[0]}</span>
+                </div>
+              </div>
+              
+              <div className="space-y-2 mb-4 bg-zinc-50/80 border border-zinc-100 p-3 rounded-lg">
+                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wide border-b border-zinc-200 pb-1 mb-2">Requirements</p>
+                {client.requirements.map(req => (
+                  <div key={req.id} className="flex justify-between items-center bg-white p-2 rounded border border-zinc-100 shadow-sm">
+                    <span className="text-[10px] font-bold text-zinc-800 uppercase tracking-wide">
+                      {req.requestedType.replace('_', ' ')} {req.requestedRole}
+                    </span>
+                    <span className="text-xs font-bold text-emerald-700">₹{req.budgetMax}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button 
+                  onClick={() => setEditModal({ isOpen: true, client })}
+                  className="flex-1 py-2 bg-zinc-100 text-zinc-700 hover:bg-zinc-200 hover:text-zinc-900 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Edit className="w-3.5 h-3.5" /> Edit
+                </button>
+                <button 
+                  onClick={() => handleDelete([client.id])}
+                  disabled={isPending}
+                  className="flex-1 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                >
+                  {isPending && selectedIds.has(client.id) ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />} Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
       {editModal.isOpen && editModal.client && (
         <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-white rounded-lg shadow-xl max-w-lg w-full overflow-hidden flex flex-col border border-zinc-200">

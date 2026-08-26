@@ -183,8 +183,8 @@ export default function CandidatesClientPage({ initialCandidates }: { initialCan
         )}
       </div>
 
-      {/* Data Grid */}
-      <div className="bg-white rounded-lg border border-zinc-200 shadow-sm overflow-hidden">
+      {/* Data Grid - Desktop */}
+      <div className="hidden md:block bg-white rounded-lg border border-zinc-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="bg-zinc-50 border-b border-zinc-200">
@@ -302,6 +302,94 @@ export default function CandidatesClientPage({ initialCandidates }: { initialCan
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {filteredCandidates.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-xl border border-zinc-200 shadow-sm">
+            <UserCircle className="w-8 h-8 text-zinc-300 mx-auto mb-3" />
+            <p className="font-medium text-zinc-500">No candidates found.</p>
+          </div>
+        ) : (
+          filteredCandidates.map((candidate) => (
+            <div key={candidate.id} className={`bg-white border rounded-xl p-4 shadow-sm relative transition-colors ${selectedIds.has(candidate.id) ? 'border-blue-500 bg-blue-50/50' : 'border-zinc-200'}`}>
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-start gap-3">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedIds.has(candidate.id)}
+                    onChange={() => toggleSelection(candidate.id)}
+                    className="mt-1 w-4 h-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-600" 
+                  />
+                  <div>
+                    <h3 className="font-bold text-zinc-900 text-base">{candidate.firstName} {candidate.lastName}</h3>
+                    <p className="text-xs text-zinc-500 font-medium flex items-center gap-1 mt-0.5"><Phone className="w-3 h-3"/> {candidate.phone}</p>
+                  </div>
+                </div>
+                {candidate.placements.length > 0 ? (
+                  <div className="text-right">
+                    <span className="text-[9px] font-bold text-blue-600 uppercase tracking-wide block">Placed With</span>
+                    <span className="text-xs font-bold text-zinc-900 truncate max-w-[100px] block">{candidate.placements[0].client.fullName}</span>
+                  </div>
+                ) : (
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded border uppercase tracking-wide ${
+                    candidate.status === 'AVAILABLE' ? 'text-blue-700 bg-blue-50 border-blue-200' :
+                    candidate.status === 'BLACKLISTED' ? 'text-red-700 bg-red-50 border-red-200' :
+                    'text-zinc-700 bg-zinc-100 border-zinc-200'
+                  }`}>
+                    {candidate.status.replace('_', ' ')}
+                  </span>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 mb-4 bg-zinc-50/80 border border-zinc-100 p-3 rounded-lg">
+                <div>
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wide mb-1">Role & Shift</p>
+                  <span className="bg-white text-zinc-800 border border-zinc-200 px-2 py-0.5 rounded text-[10px] font-bold uppercase shadow-sm">
+                    {candidate.workType.replace('_', ' ')} {candidate.roleCategory}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wide mb-1">Salary Expectation</p>
+                  <span className="text-sm font-bold text-emerald-700">₹{candidate.salaryExpected}/mo</span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wide mb-1">Aadhaar ID</p>
+                  {candidate.isVerified ? (
+                    <span className="flex items-center text-[10px] font-bold text-emerald-700"><CheckCircle2 className="w-3 h-3 mr-1" /> VERIFIED</span>
+                  ) : (
+                    <button onClick={() => setVerifyModal({ isOpen: true, candidateId: candidate.id, docType: 'AADHAAR' })} className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-200 w-full text-center">UPLOAD ID</button>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wide mb-1">Police Check</p>
+                  {candidate.policeVerified ? (
+                    <span className="flex items-center text-[10px] font-bold text-emerald-700"><CheckCircle2 className="w-3 h-3 mr-1" /> CLEARED</span>
+                  ) : (
+                    <button onClick={() => setVerifyModal({ isOpen: true, candidateId: candidate.id, docType: 'POLICE_CHECK' })} className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded border border-amber-200 w-full text-center">VERIFY NOW</button>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button 
+                  onClick={() => setEditModal({ isOpen: true, candidate })}
+                  className="flex-1 py-2 bg-zinc-100 text-zinc-700 hover:bg-zinc-200 hover:text-zinc-900 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Edit className="w-3.5 h-3.5" /> Edit
+                </button>
+                <button 
+                  onClick={() => handleDelete([candidate.id])}
+                  disabled={isPending}
+                  className="flex-1 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                >
+                  {isPending && selectedIds.has(candidate.id) ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />} Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Edit Candidate Modal */}
