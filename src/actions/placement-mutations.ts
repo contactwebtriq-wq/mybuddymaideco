@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { CandidateStatus, PlacementStatus } from '@prisma/client';
+import { CandidateStatus } from '@prisma/client';
 
 export async function editPlacementDetails(placementId: string, agreedSalary: number) {
   try {
@@ -27,7 +27,7 @@ export async function terminatePlacement(
   reopenClientRequirement: boolean
 ) {
   try {
-    const transaction: any[] = [
+    const transaction = [
       // 1. Mark the placement as TERMINATED and set end date
       prisma.placement.update({
         where: { id: placementId },

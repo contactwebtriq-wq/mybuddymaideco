@@ -21,7 +21,15 @@ export async function deleteCandidates(candidateIds: string[]) {
   }
 }
 
-export async function updateCandidateProfile(candidateId: string, data: any) {
+export async function updateCandidateProfile(candidateId: string, data: {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  roleCategory: string;
+  workType: string;
+  salaryExpected: string;
+  status: string;
+}) {
   try {
     await prisma.candidate.update({
       where: { id: candidateId },

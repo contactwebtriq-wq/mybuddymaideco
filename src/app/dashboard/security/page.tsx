@@ -36,11 +36,12 @@ export default async function SecurityDashboard() {
     take: 50,
     include: { user: true }
   });
-
+  // eslint-disable-next-line react-hooks/purity
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const failedLoginsCount = await prisma.auditLog.count({
     where: {
       action: 'FAILED_LOGIN',
-      createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // last 24 hours
+      createdAt: { gte: oneDayAgo } // last 24 hours
     }
   });
 

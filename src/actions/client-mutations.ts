@@ -43,7 +43,15 @@ export async function deleteClients(clientIds: string[], deleteFromExternal: boo
   }
 }
 
-export async function updateClientLead(clientId: string, data: any, updateExternal: boolean) {
+export async function updateClientLead(clientId: string, data: {
+  fullName: string;
+  phone: string;
+  city: string;
+  address: string;
+  requirementId?: string;
+  budgetMax?: string;
+  notes?: string;
+}, updateExternal: boolean) {
   try {
     const client = await prisma.client.update({
       where: { id: clientId },

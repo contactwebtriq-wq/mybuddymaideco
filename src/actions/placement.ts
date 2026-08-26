@@ -22,7 +22,7 @@ export async function triggerPlacement(candidateId: string, clientId: string) {
     });
 
     // 3. Transaction: Create Placement, Update Candidate, Fulfill Requirement
-    const transaction: any[] = [
+    const transaction = [
       prisma.placement.create({
         data: {
           candidateId,
