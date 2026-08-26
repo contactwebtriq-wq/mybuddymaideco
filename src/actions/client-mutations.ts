@@ -21,7 +21,7 @@ export async function deleteClients(clientIds: string[], deleteFromExternal: boo
     if (deleteFromExternal && extUrl && extKey) {
       for (const client of clients) {
         if (client.email) {
-          const res = await fetch(`${extUrl}/rest/v1/bookings?email=eq.${encodeURIComponent(client.email)}`, {
+          const res = await fetch(`${extUrl}/rest/v1/bookings?email=eq.${encodeURIComponent(client.email as string)}`, {
             method: 'DELETE',
             headers: {
               'apikey': extKey,
@@ -75,11 +75,10 @@ export async function updateClientLead(clientId: string, data: {
 
     // Update external real database
     if (updateExternal && extUrl && extKey && client.email) {
-      const res = await fetch(`${extUrl}/rest/v1/bookings?email=eq.${encodeURIComponent(client.email)}`, {
+      const res = await fetch(`${extUrl}/rest/v1/bookings?email=eq.${encodeURIComponent(client.email as string)}`, {
         method: 'PATCH',
         headers: {
           'apikey': extKey,
-          'Authorization': `Bearer ${extKey}`,
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal'
         },
@@ -87,7 +86,7 @@ export async function updateClientLead(clientId: string, data: {
           city: data.city,
           phone: data.phone,
           notes: data.notes || 'EMPTY',
-          amount: parseInt(data.budgetMax)
+          amount: parseInt(data.budgetMax || '0')
         })
       });
       if (!res.ok) throw new Error("External DB patch failed");

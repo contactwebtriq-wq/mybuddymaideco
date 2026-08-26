@@ -1,6 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/db';
+import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 export async function triggerPlacement(candidateId: string, clientId: string) {
@@ -22,7 +23,7 @@ export async function triggerPlacement(candidateId: string, clientId: string) {
     });
 
     // 3. Transaction: Create Placement, Update Candidate, Fulfill Requirement
-    const transaction = [
+    const transaction: Prisma.PrismaPromise<unknown>[] = [
       prisma.placement.create({
         data: {
           candidateId,

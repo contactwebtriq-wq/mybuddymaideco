@@ -5,6 +5,7 @@ import { Candidate, Placement, Client, CandidateStatus, RoleCategory, WorkType }
 import { createCandidate } from '@/actions/candidate';
 import { verifyCandidateDocument } from '@/actions/verification';
 import { deleteCandidates, updateCandidateProfile } from '@/actions/candidate-mutations';
+import { toast } from 'sonner';
 import { CheckCircle2, XCircle, Search, Plus, Loader2, UploadCloud, FileText, AlertCircle, Trash2, Edit, UserCircle, Phone, X } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 
@@ -53,8 +54,9 @@ export default function CandidatesClientPage({ initialCandidates }: { initialCan
       if (result.success) {
         setIsAddModalOpen(false);
         formRef.current?.reset();
+        toast.success("Candidate added successfully");
       } else {
-        alert(result.error);
+        toast.error(result.error);
       }
     });
   }
@@ -63,20 +65,21 @@ export default function CandidatesClientPage({ initialCandidates }: { initialCan
     if (!editModal.candidate) return;
     startTransition(async () => {
       const data = {
-        firstName: formData.get('firstName'),
-        lastName: formData.get('lastName'),
-        phone: formData.get('phone'),
-        roleCategory: formData.get('roleCategory'),
-        workType: formData.get('workType'),
-        salaryExpected: formData.get('salaryExpected'),
-        status: formData.get('status'),
+        firstName: String(formData.get('firstName') || ''),
+        lastName: String(formData.get('lastName') || ''),
+        phone: String(formData.get('phone') || ''),
+        roleCategory: String(formData.get('roleCategory') || ''),
+        workType: String(formData.get('workType') || ''),
+        salaryExpected: String(formData.get('salaryExpected') || '0'),
+        status: String(formData.get('status') || ''),
       };
       
       const result = await updateCandidateProfile(editModal.candidate!.id, data);
       if (result.success) {
         setEditModal({ isOpen: false, candidate: null });
+        toast.success(result.message);
       } else {
-        alert(result.error);
+        toast.error(result.error);
       }
     });
   }
@@ -88,8 +91,9 @@ export default function CandidatesClientPage({ initialCandidates }: { initialCan
       const result = await deleteCandidates(ids);
       if (result.success) {
         setSelectedIds(new Set());
+        toast.success(result.message);
       } else {
-        alert(result.error);
+        toast.error(result.error);
       }
     });
   };

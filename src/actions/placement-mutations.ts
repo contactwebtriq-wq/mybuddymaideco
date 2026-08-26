@@ -1,6 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/db';
+import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { CandidateStatus } from '@prisma/client';
 
@@ -27,7 +28,7 @@ export async function terminatePlacement(
   reopenClientRequirement: boolean
 ) {
   try {
-    const transaction = [
+    const transaction: Prisma.PrismaPromise<unknown>[] = [
       // 1. Mark the placement as TERMINATED and set end date
       prisma.placement.update({
         where: { id: placementId },

@@ -5,6 +5,7 @@ import { Client, Requirement } from '@prisma/client';
 import { createClientLead } from '@/actions/client';
 import { deleteClients, updateClientLead } from '@/actions/client-mutations';
 import { syncWebsiteLeads } from '@/actions/sync';
+import { toast } from 'sonner';
 import { Search, Plus, Loader2, MapPin, Phone, Briefcase, Calendar, Trash2, Edit, Download, RefreshCw, X } from 'lucide-react';
 
 type ClientWithReqs = Client & { requirements: Requirement[] };
@@ -49,8 +50,9 @@ export default function ClientsClientPage({ initialClients }: { initialClients: 
       if (result.success) {
         setIsModalOpen(false);
         formRef.current?.reset();
+        toast.success("Lead created successfully");
       } else {
-        alert(result.error);
+        toast.error(result.error);
       }
     });
   }
@@ -59,21 +61,21 @@ export default function ClientsClientPage({ initialClients }: { initialClients: 
     if (!editModal.client) return;
     startTransition(async () => {
       const data = {
-        fullName: formData.get('fullName'),
-        phone: formData.get('phone'),
-        city: formData.get('city'),
-        address: formData.get('address'),
-        budgetMax: formData.get('budgetMax'),
-        notes: formData.get('notes'),
+        fullName: String(formData.get('fullName') || ''),
+        phone: String(formData.get('phone') || ''),
+        city: String(formData.get('city') || ''),
+        address: String(formData.get('address') || ''),
+        budgetMax: String(formData.get('budgetMax') || '0'),
+        notes: String(formData.get('notes') || ''),
         requirementId: editModal.client?.requirements[0]?.id
       };
       const updateExternal = formData.get('updateExternal') === 'on';
       const result = await updateClientLead(editModal.client!.id, data, updateExternal);
       if (result.success) {
-        alert(result.message);
+        toast.success(result.message);
         setEditModal({ isOpen: false, client: null });
       } else {
-        alert(result.error);
+        toast.error(result.error);
       }
     });
   }
@@ -84,10 +86,10 @@ export default function ClientsClientPage({ initialClients }: { initialClients: 
     startTransition(async () => {
       const result = await deleteClients(ids, deleteFromExternal);
       if (result.success) {
-        alert(result.message);
+        toast.success(result.message);
         setSelectedIds(new Set());
       } else {
-        alert(result.error);
+        toast.error(result.error);
       }
     });
   };
@@ -96,7 +98,7 @@ export default function ClientsClientPage({ initialClients }: { initialClients: 
     setIsSyncing(true);
     try {
       const result = await syncWebsiteLeads();
-      alert(result.message || result.error);
+      if (result.success) toast.success(result.message); else toast.error(result.error);
     } finally {
       setIsSyncing(false);
     }
