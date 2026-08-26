@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Candidate {
+  id             String          @id @default(uuid())
+  firstName      String
+  lastName       String
+  phone          String          @unique
+  roleCategory   RoleCategory
+  workType       WorkType
+  salaryExpected Int
+  isVerified     Boolean         @default(false)
+  aadhaarNumber  String?         @unique
+  policeVerified Boolean         @default(false)
+  status         CandidateStatus @default(AVAILABLE)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  placements     Placement[]
+}
+
+model Client {
+  id           String        @id @default(uuid())
+  fullName     String
+  phone        String        @unique
+  email        String?
+  address      String
+  city         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  placements   Placement[]
+  requirements Requirement[]
+}
+
+model Requirement {
+  id            String       @id @default(uuid())
+  clientId      String
+  requestedRole RoleCategory
+  requestedType WorkType
+  budgetMax     Int
+  notes         String?
+  isFulfilled   Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  client        Client       @relation(fields: [clientId], references: [id])
+}
+
+model Placement {
+  id           String          @id @default(uuid())
+  candidateId  String
+  clientId     String
+  status       PlacementStatus @default(TRIAL)
+  agreedSalary Int
+  placementFee Int
+  feePaid      Boolean         @default(false)
+  guaranteeEnd DateTime?
+  startDate    DateTime        @default(now())
+  endDate      DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  candidate    Candidate       @relation(fields: [candidateId], references: [id])
+  client       Client          @relation(fields: [clientId], references: [id])
+}
+
+enum RoleCategory {
+  MAID
+  COOK
+  NANNY
+  CAREGIVER
+}
+
+enum WorkType {
+  LIVE_IN
+  EIGHT_HOUR
+  TWELVE_HOUR
+}
+
+enum CandidateStatus {
+  PENDING_VERIFICATION
+  AVAILABLE
+  ON_TRIAL
+  PLACED
+  BLACKLISTED
+}
+
+enum PlacementStatus {
+  TRIAL
+  ACTIVE
+  REPLACED
+  TERMINATED
+}
+
+// ----------------------------------------------------
+// SECURITY & AUTHENTICATION MODULE
+// ----------------------------------------------------
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  role          UserRole  @default(MANAGER)
+  
+  // Security & Account Lockout
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  
+  // Two-Factor Authentication
+  twoFactorPin        String?   // A static 6-digit PIN for demonstration of 2FA
+  isTwoFactorEnabled  Boolean   @default(true)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt @default(now())
+  
+  sessions            Session[]
+  auditLogs           AuditLog[]
+}
+
+model Session {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  expiresAt     DateTime
+  sudoExpiresAt DateTime? // For highly sensitive areas like Security Dashboard
+  createdAt     DateTime @default(now())
+
+  // Session Security tracking
+  userAgent String?
+  ipAddress String?
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
