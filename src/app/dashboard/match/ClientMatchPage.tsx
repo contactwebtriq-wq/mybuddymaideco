@@ -5,6 +5,7 @@ import { Search, MapPin, DollarSign, CheckCircle2, Loader2, Briefcase, MessageCi
 import { Candidate, Requirement, Client } from "@prisma/client";
 import { triggerPlacement } from "@/actions/placement";
 import { useRouter } from "next/navigation";
+import { toast } from 'sonner';
 
 type ReqWithClient = Requirement & { client: Client };
 
@@ -56,24 +57,24 @@ export default function ClientMatchPage({ openRequirements }: { openRequirements
 
   const handlePlacement = (candidateId: string) => {
     if (!selectedReq) {
-      alert("Please select a Client Lead first so we know who to place them with.");
+      toast.error("Please select a Client Lead first so we know who to place them with.");
       return;
     }
 
     startTransition(async () => {
       const result = await triggerPlacement(candidateId, selectedReq.clientId);
       if (result.success) {
-        alert("Placement successfully created! Candidate status updated to ON TRIAL.");
+        toast.success("Placement successfully created! Candidate status updated to ON TRIAL.");
         router.push('/dashboard/placements');
       } else {
-        alert(result.error || "Placement failed");
+        toast.error(result.error || "Placement failed");
       }
     });
   };
 
   const handleWhatsAppShare = (candidate: Candidate) => {
     if (!selectedReq) {
-      alert("Please select a Client Lead first so we can format the message correctly.");
+      toast.error("Please select a Client Lead first so we can format the message correctly.");
       return;
     }
 

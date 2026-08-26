@@ -5,6 +5,7 @@ import { Placement, Candidate, Client } from '@prisma/client';
 import { markFeePaid } from '@/actions/finance';
 import { DollarSign, CheckCircle2, Clock, Loader2, Send } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 type FullPlacement = Placement & { candidate: Candidate; client: Client };
 
@@ -21,9 +22,9 @@ export default function FinanceClientPage({ placements }: { placements: FullPlac
     startTransition(async () => {
       const result = await markFeePaid(placementId);
       if (result.success) {
-        alert("Payment logged! The 6-Month Replacement Guarantee has now officially started.");
+        toast.success("Payment logged! The 6-Month Replacement Guarantee has now officially started.");
       } else {
-        alert(result.error || "Failed to log payment.");
+        toast.error(result.error || "Failed to log payment.");
       }
     });
   };

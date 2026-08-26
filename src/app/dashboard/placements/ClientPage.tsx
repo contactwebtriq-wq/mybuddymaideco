@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { Placement, Candidate, Client, CandidateStatus } from '@prisma/client';
 import { editPlacementDetails, terminatePlacement } from '@/actions/placement-mutations';
 import { ShieldCheck, AlertTriangle, Calendar, Edit, XCircle, Loader2, Clock, Search, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 type FullPlacement = Placement & { candidate: Candidate; client: Client };
 
@@ -34,8 +35,9 @@ export default function PlacementsClientPage({ initialPlacements }: { initialPla
       const result = await editPlacementDetails(editModal.placement!.id, newSalary);
       if (result.success) {
         setEditModal({ isOpen: false, placement: null });
+        toast.success("Placement agreement updated.");
       } else {
-        alert(result.error);
+        toast.error(result.error);
       }
     });
   };
@@ -59,9 +61,9 @@ export default function PlacementsClientPage({ initialPlacements }: { initialPla
 
       if (result.success) {
         setTerminateModal({ isOpen: false, placement: null });
-        alert(result.message);
+        toast.success(result.message);
       } else {
-        alert(result.error);
+        toast.error(result.error);
       }
     });
   };
