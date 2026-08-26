@@ -31,8 +31,21 @@ export async function syncWebsiteLeads() {
       return { success: true, count: 0, message: 'No new pending bookings found.' };
     }
 
-    const validBookings = bookings.filter((b: any) => b.email || b.phone);
-    const emails = validBookings.map((b: any) => b.email).filter(Boolean);
+    type BookingInput = {
+      email?: string;
+      phone?: string;
+      updated_at?: string;
+      created_at?: string;
+      city?: string;
+      service?: string;
+      amount?: number;
+      notes?: string;
+    };
+
+    const validBookings: BookingInput[] = bookings.filter((b: unknown): b is BookingInput => {
+      return typeof b === 'object' && b !== null && ('email' in b || 'phone' in b);
+    });
+    const emails = validBookings.map(b => b.email).filter((e): e is string => Boolean(e));
 
     const existingClients = await prisma.client.findMany({
       where: { email: { in: emails } },
@@ -136,6 +149,7 @@ export async function syncWebsiteLeads() {
 
   } catch (error) {
     console.error("Sync Error:", error);
-    return { success: false, error: 'Failed to connect to external website database.' };
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: `Sync Failed: ${msg}` };
   }
 }
