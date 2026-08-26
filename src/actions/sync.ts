@@ -5,8 +5,8 @@ import { revalidatePath } from 'next/cache';
 import { RoleCategory, WorkType } from '@prisma/client';
 
 export async function syncWebsiteLeads() {
-  const url = process.env.WEBSITE_SUPABASE_URL?.replace(/^["']|["']$/g, '');
-  const key = process.env.WEBSITE_SUPABASE_ANON_KEY?.replace(/^["']|["']$/g, '');
+  const url = process.env.WEBSITE_SUPABASE_URL?.replaceAll('"', '').replaceAll("'", '').trim();
+  const key = process.env.WEBSITE_SUPABASE_ANON_KEY?.replaceAll('"', '').replaceAll("'", '').trim();
 
   if (!url || !key || url.includes('[YOUR-WEBSITE-PROJECT-REF]')) {
     return { success: false, error: 'Please configure WEBSITE_SUPABASE_URL and WEBSITE_SUPABASE_ANON_KEY in your .env file.' };
