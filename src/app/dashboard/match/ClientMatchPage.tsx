@@ -13,13 +13,15 @@ export default function ClientMatchPage({ openRequirements }: { openRequirements
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [matches, setMatches] = useState<Candidate[]>([]);
+  type AIMatch = Candidate & { matchScore?: number; matchReason?: string };
+  const [matches, setMatches] = useState<AIMatch[]>([]);
   const [selectedReq, setSelectedReq] = useState<ReqWithClient | null>(null);
   
   const [formData, setFormData] = useState({
     roleCategory: "MAID",
     workType: "LIVE_IN",
     maxBudget: "",
+    notes: "",
   });
 
   const handleSelectLead = (req: ReqWithClient) => {
@@ -28,6 +30,7 @@ export default function ClientMatchPage({ openRequirements }: { openRequirements
       roleCategory: req.requestedRole,
       workType: req.requestedType,
       maxBudget: req.budgetMax.toString(),
+      notes: req.notes || "",
     });
   };
 
@@ -232,11 +235,17 @@ Let us know if you would like to proceed with a trial placement for this candida
                             <CheckCircle2 className="w-3 h-3" /> Verified
                           </span>
                         </div>
-                        <p className="text-xs text-zinc-500 font-medium flex items-center gap-2">
+                        <p className="text-xs text-zinc-500 font-medium flex items-center gap-2 mb-1">
                           <span>{candidate.workType.replace('_', ' ')} {candidate.roleCategory}</span>
                           <span className="w-1 h-1 rounded-full bg-zinc-300"></span>
                           <span className="text-zinc-700 font-semibold">₹{candidate.salaryExpected}/mo</span>
                         </p>
+                        {(candidate as AIMatch).matchScore && (
+                          <div className="bg-purple-50 text-purple-700 px-3 py-2 rounded-md mt-1 border border-purple-100 max-w-sm">
+                            <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5">{(candidate as AIMatch).matchScore}% AI Match</p>
+                            <p className="text-xs font-medium leading-snug">{(candidate as AIMatch).matchReason}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                     

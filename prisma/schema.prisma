@@ -15,6 +15,7 @@ model Candidate {
   roleCategory   RoleCategory
   workType       WorkType
   salaryExpected Int
+  skills         String?         // For AI Smart Matching
   isVerified     Boolean         @default(false)
   aadhaarNumber  String?         @unique
   policeVerified Boolean         @default(false)
