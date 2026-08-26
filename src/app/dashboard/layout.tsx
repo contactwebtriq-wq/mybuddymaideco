@@ -21,13 +21,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const user = session.user;
   
   return (
-    <div className="flex h-screen bg-[#F7F7F8] font-sans">
+    <div className="flex flex-col md:flex-row h-screen bg-[#F7F7F8] font-sans">
       <SidebarNav user={{ name: user.name, role: user.role }} />
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header - Ultra Minimal */}
-        <header className="h-14 bg-white border-b border-zinc-200 flex justify-between items-center px-6 shrink-0">
+        <header className="hidden md:flex h-14 bg-white border-b border-zinc-200 justify-between items-center px-6 shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-zinc-800">Command Center</span>
           </div>
