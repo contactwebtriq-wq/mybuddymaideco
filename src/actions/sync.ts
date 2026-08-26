@@ -149,7 +149,7 @@ export async function syncWebsiteLeads() {
 
   } catch (error) {
     console.error("Sync Error:", error);
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    return { success: false, error: `Sync Failed: ${msg}` };
+    // We log the real error securely on Vercel's backend servers, but NEVER send it to the user's screen.
+    return { success: false, error: 'Sync failed due to an internal system error. Please check the server logs.' };
   }
 }
